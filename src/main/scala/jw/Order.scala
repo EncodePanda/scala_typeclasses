@@ -1,7 +1,7 @@
 package jw
 
 import json._
-import stat.Stat
+import stat._
 
 trait Evaluatable[T] {
   def evaluate: T
@@ -59,5 +59,5 @@ case class ComplexOrder(orders: List[Order]) extends Order {
 
 object Order {
   def average(orders: Seq[Order]): BigDecimal =
-    Stat.mean(orders.map(_.evaluate))
+    Stat.mean(orders.map(o => BigDecimalNumber(o.evaluate))).value
 }
