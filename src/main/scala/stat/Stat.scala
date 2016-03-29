@@ -1,32 +1,32 @@
 package stat
 
 trait Number[A] {
-  def value: A
-  def +(other: Number[A]): Number[A]
-  def /(other: Number[A]): Number[A]
-  def /(other: Int): Number[A]
+  def plus(n1: A, n2: A): A
+  def divide(n1: A, n2: A): A
+  def divide(n1: A, n2: Int): A
 }
 
-case class BigDecimalNumber(value: BigDecimal) extends Number[BigDecimal] {
-  def +(other: Number[BigDecimal]) = BigDecimalNumber(value + other.value)
-  def /(other: Number[BigDecimal]) = BigDecimalNumber(value / other.value)
-  def /(other: Int) = BigDecimalNumber(value / other)
-}
+object Number {
 
-case class IntNumber(value: Int) extends Number[Int] {
-  def +(other: Number[Int]) = IntNumber(value + other.value)
-  def /(other: Number[Int]) = IntNumber(value / other.value)
-  def /(other: Int) = IntNumber(value / other)
-}
+  implicit object BigDecimalNumber extends Number[BigDecimal] {
+    def plus(n1: BigDecimal, n2: BigDecimal): BigDecimal = n1 + n2
+    def divide(n1: BigDecimal, n2: BigDecimal): BigDecimal = n1 / n2
+    def divide(n1: BigDecimal, n2: Int): BigDecimal = n1 / n2
+  }
 
-case class DoubleNumber(value: Double) extends Number[Double] {
-  def +(other: Number[Double]) = DoubleNumber(value + other.value)
-  def /(other: Number[Double]) = DoubleNumber(value / other.value)
-  def /(other: Int) = DoubleNumber(value / other)
-}
+  implicit object IntNumber extends Number[Int] {
+    def plus(n1: Int, n2: Int): Int = n1 + n2
+    def divide(n1: Int, n2: Int): Int = n1 / n2
+  }
 
+  implicit object DoubleNumber extends Number[Double] {
+    def plus(n1: Double, n2: Double): Double = n1 + n2
+    def divide(n1: Double, n2: Double): Double = n1 / n2
+    def divide(n1: Double, n2: Int): Double = n1 / n2
+  }
+}
 
 object Stat {
-  def mean[A](xs: Seq[Number[A]]): Number[A] =
-    xs.reduce(_ + _) / xs.size
+  def mean[A](xs: Seq[A])(implicit number: Number[A]): A =
+    number.divide(xs.reduce(number.plus),xs.size)
 }

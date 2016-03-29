@@ -68,5 +68,5 @@ case class ComplexOrder(orders: List[Order]) extends Order {
 
 object Order {
   def average(orders: Seq[Order]): BigDecimal =
-    Stat.mean(orders.map(o => BigDecimalNumber(o.evaluate))).value
+    Stat.mean(orders.map(_.evaluate))
 }
