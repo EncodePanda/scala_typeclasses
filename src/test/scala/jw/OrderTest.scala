@@ -1,5 +1,6 @@
 package jw
 
+import json.JsonSerializer
 import org.scalatest.{FunSuite, Matchers}
 
 class OrderTest extends FunSuite with Matchers {
@@ -19,6 +20,15 @@ class OrderTest extends FunSuite with Matchers {
     val o3 = GeneralOrder(BasicProduct(10, BigDecimal("10.2")) :: Nil)
 
     Order.average(o1 :: o2 :: o3 :: Nil) should equal(BigDecimal("5.0"))
+  }
+
+  test("should serialize to json") {
+    val o1 = GeneralOrder(BasicProduct(10, BigDecimal("10.2")) :: Nil)
+    val o2 = CancelledOrder
+    val order = ComplexOrder(o1 :: o2 :: Nil)
+
+    val expectedJson = """{"type: "complex"", "orders: [{"type: "general"", "products: [{"type: "basic"", "id: 10", "price: 10.2"}]"}, "cancelled order"]"}"""
+    JsonSerializer.write(order) should equal(expectedJson)
   }
 
 }
