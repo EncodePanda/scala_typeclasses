@@ -14,6 +14,7 @@ sealed trait Product extends Evaluatable[BigDecimal] with JsonSerializable {
 case class BasicProduct(id: Int, price: BigDecimal) extends Product {
   def evaluate: BigDecimal = price
   def toJson: JsonValue = JsonObject(Map(
+    "type" -> JsonString("basic"),
     "id" -> JsonNumber(BigDecimal(id)),
     "price" -> JsonNumber(price)
   ))
@@ -22,6 +23,7 @@ case class BasicProduct(id: Int, price: BigDecimal) extends Product {
 case class DiscountedProduct(product: Product, discount: Double) extends Product {
   def evaluate: BigDecimal = product.evaluate * (1 - discount)
   def toJson: JsonValue = JsonObject(Map(
+    "type" -> JsonString("discounted"),
     "product" -> product.toJson,
     "discount" -> JsonNumber(discount)
   ))
@@ -41,12 +43,15 @@ case class GeneralOrder(products: List[Product]) extends Order {
     case (acc, p) => acc + p.evaluate
   }
 
-  def toJson: JsonValue = JsonArray(products.map(_.toJson))
-}
+  def toJson: JsonValue = JsonObject(Map(
+    "type" -> JsonString("general"),
+    "products" -> JsonArray(products.map(_.toJson))
+  ))
+} 
 
 case object CancelledOrder extends Order {
   def evaluate: BigDecimal = BigDecimal("0.0")
-  def toJson: JsonValue = JsonString("cancelled")
+  def toJson: JsonValue = JsonString("cancelled order")
 }
 
 case class ComplexOrder(orders: List[Order]) extends Order {
@@ -54,7 +59,11 @@ case class ComplexOrder(orders: List[Order]) extends Order {
     case (acc, o) => acc + o.evaluate
   }
 
-  override def toJson: JsonValue = JsonArray(orders.map(_.toJson))
+  override def toJson: JsonValue = JsonObject(Map(
+    "type" -> JsonString("complex"),
+    "orders" -> JsonArray(orders.map(_.toJson)))
+  )
+
 }
 
 object Order {
